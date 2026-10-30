@@ -1,0 +1,24 @@
+name: Deploy App to Environment
+on:
+  workflow_call:
+    inputs:
+      environment-name:
+        type: string
+        required: true
+    secrets:
+      DEPLOY_HOST:
+        required: true
+jobs:
+  trigger-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prove privileged context
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          echo "PRIVILEGED_JOB_RAN=true"
+          echo "environment=${{ inputs.environment-name }}"
+          echo "triggering_name=${{ github.event.workflow_run.name }}"
+          echo "triggering_branch=${{ github.event.workflow_run.head_branch }}"
+          echo "triggering_head_repo=${{ github.event.workflow_run.head_repository.full_name }}"
+          echo "secret_present=$([ -n "$DEPLOY_HOST" ] && echo yes || echo no) len=${#DEPLOY_HOST}"
