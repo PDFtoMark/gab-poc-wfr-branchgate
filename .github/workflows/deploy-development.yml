@@ -1,0 +1,22 @@
+name: Deploy development
+
+on:
+  workflow_dispatch: # manual run
+  workflow_run:
+    workflows: ["Release Workflow"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  gitlab-dev-deploy:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'development')
+    uses: ./.github/workflows/reuse-deploy.yml
+    with:
+      environment-name: "development"
+    secrets:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
